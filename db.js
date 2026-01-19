@@ -1,13 +1,23 @@
-import mysql from "mysql2";
+const mysql = require("mysql2");
 
-const db = mysql.createPool({
-  host: process.env.MYSQLHOST,
-  user: process.env.MYSQLUSER,
-  password: process.env.MYSQLPASSWORD,
-  database: process.env.MYSQLDATABASE,
-  port: process.env.MYSQLPORT,
+// Ambil dari environment variables Railway
+const connection = mysql.createConnection({
+  host: process.env.MYSQLHOST,      // host
+  user: process.env.MYSQLUSER,      // user
+  password: process.env.MYSQLPASSWORD, // password
+  database: process.env.MYSQLDATABASE, // database
+  port: process.env.MYSQLPORT || 3306,
   waitForConnections: true,
-  connectionLimit: 10,
+  connectTimeout: 10000,
+  queueLimit: 0
 });
 
-export default db;
+connection.connect((err) => {
+  if (err) {
+    console.error("Database connection failed:", err);
+  } else {
+    console.log("Database connected successfully!");
+  }
+});
+
+module.exports = connection;

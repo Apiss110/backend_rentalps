@@ -50,4 +50,35 @@ setInterval(() => {
       });
     }
   );
+}, 60000);// --- ROBOT OTOMATIS (Update Setiap 1 Menit) ---
+setInterval(async () => {
+  try {
+    // 1. Cari rental yang aktif tapi waktunya habis
+    const [rentals] = await db.query(
+      `SELECT * FROM rentals 
+       WHERE status = 'active' AND end_time <= NOW()`
+    );
+
+    if (rentals.length === 0) return;
+
+    for (const rental of rentals) {
+      // A. Update status rental
+      await db.query(
+        "UPDATE rentals SET status = 'finished' WHERE id = ?",
+        [rental.id]
+      );
+
+      // B. Update status PS unit
+      await db.query(
+        "UPDATE ps_units SET status = 'available' WHERE id = ?",
+        [rental.ps_id]
+      );
+
+      console.log(`[SYSTEM] Rental ID ${rental.id} otomatis selesai (Waktu Habis).`);
+    }
+
+  } catch (err) {
+    // ⛔ Jangan biarkan error bunuh server
+    console.error("[AUTO-FINISH ERROR]", err.message);
+  }
 }, 60000);

@@ -1,11 +1,11 @@
-const mysql = require("mysql2");
+import mysql from "mysql2";
 
 // Ambil dari environment variables Railway
 const connection = mysql.createConnection({
-  host: process.env.MYSQLHOST,      // host
-  user: process.env.MYSQLUSER,      // user
-  password: process.env.MYSQLPASSWORD, // password
-  database: process.env.MYSQLDATABASE, // database
+  host: process.env.MYSQLHOST,
+  user: process.env.MYSQLUSER,
+  password: process.env.MYSQLPASSWORD,
+  database: process.env.MYSQLDATABASE,
   port: process.env.MYSQLPORT || 3306,
   waitForConnections: true,
   connectTimeout: 10000,
@@ -20,4 +20,4 @@ connection.connect((err) => {
   }
 });
 
-module.exports = connection;
+export default connection; // ✅ wajib pakai default export

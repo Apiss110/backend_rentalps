@@ -37,3 +37,16 @@ Content-Type: application/json
   "package_id": 1
 }
 
+
+###
+POST http://localhost:3000/auth/register
+Content-Type: application/json
+
+{
+  "username": "newuser",
+  "password": "securepassword",
+  "email": "newuser@example.com",
+  "role": "user",
+  "phone": "1234567890"
+
+}

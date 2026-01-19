@@ -1,7 +1,5 @@
 import mysql from "mysql2";
 
-import mysql from "mysql2";
-
 const db = mysql.createPool({
   host: process.env.MYSQLHOST,
   user: process.env.MYSQLUSER,

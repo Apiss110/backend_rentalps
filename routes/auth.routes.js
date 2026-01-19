@@ -7,13 +7,35 @@ const router = express.Router();
 // ... (Register, Login, Logout, Create-Admin SAMA SEPERTI SEBELUMNYA) ...
 
 router.post('/register', (req, res) => {
-    if(!req.body.username || !req.body.password || !req.body.email || !req.body.phone) return res.json({Error: "Data tidak lengkap!"});
-    const sql = "INSERT INTO users (`username`, `email`, `password`, `role`, `phone`) VALUES (?, ?, ?, ?, ?)";
-    db.query(sql, [req.body.username, req.body.email, req.body.password, 'user', req.body.phone], (err) => {
-        if(err) return res.json({Error: "Gagal register"});
-        return res.json({Status: "Success"});
+    const { username, email, password, phone } = req.body;
+
+    if (!username || !email || !password || !phone) {
+        return res.status(400).json({
+            error: "Data tidak lengkap",
+            body: req.body
+        });
+    }
+
+    const sql = `
+        INSERT INTO users (username, email, password, role, phone)
+        VALUES (?, ?, ?, ?, ?)
+    `;
+
+    db.query(sql, [username, email, password, 'user', phone], (err) => {
+        if (err) {
+            console.error("REGISTER ERROR:", err);
+            return res.status(500).json({
+                error: "Gagal register",
+                detail: err.message
+            });
+        }
+
+        return res.status(201).json({
+            status: "Success"
+        });
     });
 });
+
 
 router.post('/login', (req, res) => {
     const sql = "SELECT * FROM users WHERE username = ?";

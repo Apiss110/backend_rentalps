@@ -50,3 +50,15 @@ Content-Type: application/json
   "phone": "1234567890"
 
 }
+
+###
+POST backendrentalps-production-7902.up.railway.app/auth/register
+Content-Type: application/json
+
+{
+  "username": "newuser",
+  "password": "securepassword",
+  "email": "newuser@example.com",
+  "role": "user",
+  "phone": "1234567890"
+}

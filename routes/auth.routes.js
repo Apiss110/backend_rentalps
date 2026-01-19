@@ -9,6 +9,8 @@ const router = express.Router();
 router.post('/register', (req, res) => {
     const { username, email, password, phone } = req.body;
 
+    console.log("REQ BODY:", req.body);
+
     if (!username || !email || !password || !phone) {
         return res.status(400).json({
             error: "Data tidak lengkap",
@@ -23,16 +25,14 @@ router.post('/register', (req, res) => {
 
     db.query(sql, [username, email, password, 'user', phone], (err) => {
         if (err) {
-            console.error("REGISTER ERROR:", err);
+            console.error("MYSQL ERROR:", err);
             return res.status(500).json({
                 error: "Gagal register",
                 detail: err.message
             });
         }
 
-        return res.status(201).json({
-            status: "Success"
-        });
+        return res.status(201).json({ status: "Success" });
     });
 });
 

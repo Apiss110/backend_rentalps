@@ -1,0 +1,39 @@
+GET http://localhost:3000/ps
+
+###
+GET http://localhost:3000/packages
+
+### 1️⃣ GET semua rental
+GET http://localhost:3000/rentals
+Content-Type: application/json
+
+###
+
+### 2️⃣ GET rental aktif
+GET http://localhost:3000/rentals/active
+Content-Type: application/json
+
+###
+
+### 3️⃣ POST rental per jam (hourly)
+POST http://localhost:3000/rentals
+Content-Type: application/json
+
+{
+  "ps_id": 1,
+  "rental_type": "hourly",
+  "duration_hours": 2
+}
+
+###
+
+### 4️⃣ POST rental per paket
+POST http://localhost:3000/rentals
+Content-Type: application/json
+
+{
+  "ps_id": 2,
+  "rental_type": "package",
+  "package_id": 1
+}
+

@@ -38,29 +38,28 @@ app.listen(PORT, () => {
 // ===============================
 // AUTO FINISH RENTAL (CRON STYLE)
 // ===============================
-setInterval(async () => {
+app.post("/system/auto-finish", async (req, res) => {
   try {
     const [rentals] = await dbPromise.query(
       `SELECT id, ps_id FROM rentals 
        WHERE status = 'active' AND end_time <= NOW()`
     );
 
-    if (!rentals.length) return;
-
     for (const rental of rentals) {
       await dbPromise.query(
         "UPDATE rentals SET status = 'finished' WHERE id = ?",
         [rental.id]
       );
-
       await dbPromise.query(
         "UPDATE ps_units SET status = 'available' WHERE id = ?",
         [rental.ps_id]
       );
-
-      console.log(`[SYSTEM] Rental ${rental.id} auto-finished`);
     }
+
+    res.json({ success: true, finished: rentals.length });
   } catch (err) {
-    console.error("[AUTO-FINISH ERROR]", err.message);
+    console.error(err);
+    res.status(500).json({ error: err.message });
   }
-}, 60000);
+});
+

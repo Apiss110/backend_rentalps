@@ -1,84 +1,66 @@
 import express from "express";
 import cors from "cors";
-import path from 'path';
-import { fileURLToPath } from 'url';
+import path from "path";
+import { fileURLToPath } from "url";
 
-// --- ROUTES IMPORTS ---
+// ROUTES
 import psRoutes from "./routes/ps.routes.js";
 import packageRoutes from "./routes/package.routes.js";
 import rentalRoutes from "./routes/rental.routes.js";
-import authRoutes from "./routes/auth.routes.js"; 
-import customerRoutes from './routes/customer.routes.js';
-import db from "./db.js";
+import authRoutes from "./routes/auth.routes.js";
+import customerRoutes from "./routes/customer.routes.js";
+
+import { dbPromise } from "./db.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 const app = express();
+
+// MIDDLEWARE
 app.use(cors());
 app.use(express.json());
+app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
-// --- USE ROUTES ---
+// ROUTES
 app.use("/ps", psRoutes);
 app.use("/packages", packageRoutes);
 app.use("/rentals", rentalRoutes);
-app.use("/auth", authRoutes); 
-app.use('/customers', customerRoutes); 
-app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+app.use("/auth", authRoutes);
+app.use("/customers", customerRoutes);
 
 // SERVER
-app.listen(3000, () => {
-  console.log("Server running on port 3000");
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => {
+  console.log("Server running on port", PORT);
 });
 
-// --- ROBOT OTOMATIS (Update Setiap 1 Menit) ---
-setInterval(() => {
-  // 1. Cari rental yang AKTIF tapi WAKTUNYA SUDAH HABIS
-  db.query(
-    `SELECT * FROM rentals WHERE status = 'active' AND end_time <= NOW()`,
-    (err, rentals) => {
-      if (err) return console.error("Auto-finish check error:", err);
-
-      rentals.forEach((rental) => {
-        // A. Ubah Status Rental jadi 'finished'
-        db.query("UPDATE rentals SET status = 'finished' WHERE id = ?", [rental.id]);
-
-        // B. Ubah Status PS Unit jadi 'available' (Opsional, buat kerapian database)
-        db.query("UPDATE ps_units SET status = 'available' WHERE id = ?", [rental.ps_id]);
-
-        console.log(`[SYSTEM] Rental ID ${rental.id} otomatis selesai (Waktu Habis).`);
-      });
-    }
-  );
-}, 60000);// --- ROBOT OTOMATIS (Update Setiap 1 Menit) ---
+// ===============================
+// AUTO FINISH RENTAL (CRON STYLE)
+// ===============================
 setInterval(async () => {
   try {
-    // 1. Cari rental yang aktif tapi waktunya habis
-    const [rentals] = await db.query(
-      `SELECT * FROM rentals 
+    const [rentals] = await dbPromise.query(
+      `SELECT id, ps_id FROM rentals 
        WHERE status = 'active' AND end_time <= NOW()`
     );
 
-    if (rentals.length === 0) return;
+    if (!rentals.length) return;
 
     for (const rental of rentals) {
-      // A. Update status rental
-      await db.query(
+      await dbPromise.query(
         "UPDATE rentals SET status = 'finished' WHERE id = ?",
         [rental.id]
       );
 
-      // B. Update status PS unit
-      await db.query(
+      await dbPromise.query(
         "UPDATE ps_units SET status = 'available' WHERE id = ?",
         [rental.ps_id]
       );
 
-      console.log(`[SYSTEM] Rental ID ${rental.id} otomatis selesai (Waktu Habis).`);
+      console.log(`[SYSTEM] Rental ${rental.id} auto-finished`);
     }
-
   } catch (err) {
-    // ⛔ Jangan biarkan error bunuh server
     console.error("[AUTO-FINISH ERROR]", err.message);
   }
 }, 60000);

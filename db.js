@@ -8,8 +8,8 @@ const pool = mysql.createPool({
   port: process.env.MYSQLPORT || 3306,
   waitForConnections: true,
   connectionLimit: 10,
-  queueLimit: 0,
-  connectTimeout: 10000
+  queueLimit: 0
 });
 
 export default pool;
+export const dbPromise = pool.promise();

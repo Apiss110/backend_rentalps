@@ -23,12 +23,11 @@ app.use(express.json());
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
 // ROUTES
-app.use("/ps", psRoutes);
-app.use("/packages", packageRoutes);
-app.use("/rentals", rentalRoutes);
-app.use("/auth", authRoutes);
-app.use("/customers", customerRoutes);
-
+app.use("/api/ps", psRoutes);
+app.use("/api/packages", packageRoutes);
+app.use("/api/rentals", rentalRoutes);
+app.use("/api/auth", authRoutes);
+app.use("/api/customers", customerRoutes);
 // ROOT HEALTH CHECK (WAJIB DI CLOUD)
 app.get("/", (req, res) => {
   res.status(200).json({

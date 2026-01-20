@@ -29,6 +29,13 @@ app.use("/rentals", rentalRoutes);
 app.use("/auth", authRoutes);
 app.use("/customers", customerRoutes);
 
+// ROOT HEALTH CHECK (WAJIB DI CLOUD)
+app.get("/", (req, res) => {
+  res.status(200).json({
+    status: "OK",
+    message: "Backend Rental PS is running 🚀",
+  });
+});
 // SERVER
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
